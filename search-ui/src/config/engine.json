@@ -1,0 +1,13 @@
+{
+  "engineName": "cv-transcriptions",
+  "searchFields": ["generated_text"],
+  "resultFields": [
+    "filename",
+    "generated_text",
+    "duration",
+    "age",
+    "gender",
+    "accent"
+  ],
+  "titleField": "generated_text"
+}

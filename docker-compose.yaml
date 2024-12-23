@@ -1,0 +1,85 @@
+services:
+  asr-api:
+    build:
+      context: asr
+      dockerfile: api.Dockerfile
+    ports:
+      - 8001:8001
+    healthcheck:
+      test: curl -f http://localhost:8001/ping
+      interval: 2m
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+
+  elastic-backend-1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    environment:
+      - cluster.name=es-docker-cluster
+      - node.name=elastic-backend-1
+      - node.roles=master,data,ingest
+      - network.host= 0.0.0.0
+      - discovery.seed_hosts=elastic-backend-2
+      - cluster.initial_master_nodes=elastic-backend-1
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
+      - "http.cors.allow-origin=*"
+      - http.cors.enabled=true
+      - http.cors.allow-credentials=true
+      - "http.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE"
+      - "http.cors.allow-headers=X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept, x-elastic-client-meta"
+    ports:
+      - 9200:9200
+
+
+  elastic-backend-2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    environment:
+      - cluster.name=es-docker-cluster
+      - node.name=elastic-backend-2
+      - node.roles=data,ingest
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
+      - discovery.seed_hosts=elastic-backend-1
+      - xpack.security.enabled=false
+      - "http.cors.allow-origin=*"
+      - http.cors.enabled=true
+      - http.cors.allow-credentials=true
+      - "http.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE"
+      - "http.cors.allow-headers=X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept, x-elastic-client-meta"
+
+
+
+  transcription_runner:
+    build:
+      context: asr
+      dockerfile: transcript.Dockerfile
+    volumes:
+      - shared-data:/app/shared-data
+    depends_on:
+      asr-api:
+        condition: service_healthy
+      elastic-backend-1:
+        condition: service_started
+
+  ingest_runner:
+    build:
+      context: elastic-backend
+      dockerfile: ingest.Dockerfile
+    volumes:
+      - shared-data:/app/shared-data
+    depends_on:
+      transcription_runner:
+        condition: service_completed_successfully
+
+  search-ui:
+    build:
+      context: search-ui
+      dockerfile: search-ui.Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      ingest_runner:
+        condition: service_completed_successfully
+
+volumes:
+  shared-data:
