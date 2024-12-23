@@ -4,15 +4,15 @@ services:
       context: asr
       dockerfile: api.Dockerfile
     ports:
-      - 8001:8001
+      - 8001:8001 # expose asr-api on port 8001
     healthcheck:
-      test: curl -f http://localhost:8001/ping
+      test: curl -f http://localhost:8001/ping # health check every 2 min
       interval: 2m
       timeout: 5s
       retries: 5
       start_period: 120s
 
-  elastic-backend-1:
+  elastic-backend-1: # main instance for Elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
     environment:
       - cluster.name=es-docker-cluster
@@ -21,9 +21,9 @@ services:
       - network.host= 0.0.0.0
       - discovery.seed_hosts=elastic-backend-2
       - cluster.initial_master_nodes=elastic-backend-1
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
-      - "http.cors.allow-origin=*"
+      - xpack.security.enabled=false # disable security features
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m" # limit heap size
+      - "http.cors.allow-origin=*" # enable cos from all origins
       - http.cors.enabled=true
       - http.cors.allow-credentials=true
       - "http.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE"
@@ -49,7 +49,7 @@ services:
 
 
 
-  transcription_runner:
+  transcription_runner: # service to generate transcriptions
     build:
       context: asr
       dockerfile: transcript.Dockerfile
@@ -57,11 +57,11 @@ services:
       - shared-data:/app/shared-data
     depends_on:
       asr-api:
-        condition: service_healthy
+        condition: service_healthy # wait for asr-api to be healthy
       elastic-backend-1:
-        condition: service_started
+        condition: service_started # wait for elastic-backend-1 to start
 
-  ingest_runner:
+  ingest_runner: # service to ingest transcription data into Elasticsearch
     build:
       context: elastic-backend
       dockerfile: ingest.Dockerfile
@@ -69,7 +69,7 @@ services:
       - shared-data:/app/shared-data
     depends_on:
       transcription_runner:
-        condition: service_completed_successfully
+        condition: service_completed_successfully # wait for transcription is done
 
   search-ui:
     build:
@@ -79,7 +79,7 @@ services:
       - 3000:3000
     depends_on:
       ingest_runner:
-        condition: service_completed_successfully
+        condition: service_completed_successfully # wait for ingestion to complete
 
 volumes:
-  shared-data:
+  shared-data: # shared volume for data exchange between services

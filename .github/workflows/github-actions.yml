@@ -62,3 +62,12 @@ jobs:
           TF_VAR_zone: ${{ vars.zone }}
           TF_VAR_instance_name: ${{ vars.instance_name }}
 
+      - name: Deploy to Compute Engine
+        run: |
+          gcloud compute ssh ${{ vars.instance_name }} --zone=${{ vars.zone }} --command='
+            curl -L -o repository.zip https://github.com/leeyide96/transcription-generator/archive/refs/heads/master.zip
+            sudo unzip -o repository.zip -d /usr/local
+            cd /usr/local/transcription-generator-master
+            nohup sudo docker compose up --build --force-recreate -d > /tmp/output.log 2>&1 &
+          '
+

@@ -7,6 +7,13 @@ kibana_url = "http://search-ui:5601"
 index = "cv-transcriptions"
 
 def create_es_index(es_url, index_name):
+    """
+    Checks if an Elasticsearch index exists, and creates it if it doesn't
+
+    Args:
+        es_url (str): Elasticsearch instance base url
+        index_name (str): Name of the index to be checked or created
+    """
     response = requests.head(f"{es_url}/{index_name}")
 
     if response.status_code == 404:
@@ -18,6 +25,14 @@ def create_es_index(es_url, index_name):
         })
 
 def ingest_csv(csv_path, es_url, index):
+    """
+    Ingests data from CSV file into an Elasticsearch index
+
+    Args:
+        csv_path (str): Path to the CSV file
+        es_url (str): Elasticsearch instance base url
+        index (str): Elasticsearch index name
+    """
     create_es_index(es_url, index)
     df = pd.read_csv(csv_path).replace({float('nan'): ""})
     for i, row in df.iterrows():

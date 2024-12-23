@@ -12,10 +12,26 @@ app = FastAPI()
 
 @app.get("/ping")
 async def ping():
+    """
+    Health check endpoint for the API.
+
+    Returns:
+        dict: Contains a "pong" message.
+    """
     return {"message": "pong"}
 
 @app.post("/asr")
 async def asr(file: UploadFile):
+    """
+    Transcribes audio files using a pre-trained Wav2Vec2 ASR model.
+
+    Args:
+        file (UploadFile): Uploaded audio file in MP3 format
+
+    Returns:
+        dict: Contains the transcription and the audio duration
+              in seconds
+    """
     try:
         file_bytes = await file.read()
         with BytesIO(file_bytes) as audio_file:
