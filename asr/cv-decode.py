@@ -22,7 +22,7 @@ def generate_transcription(session, file_path):
 
 def update_csv(csv_path, folder_path, export_path):
     session = requests.Session()
-    df = pd.read_csv(csv_path).iloc[:15]
+    df = pd.read_csv(csv_path)
     df[["generated_text", "duration"]] = df["filename"].apply(lambda x: pd.Series(generate_transcription(session, folder_path + x)))
     df.to_csv(export_path, index=False)
 
