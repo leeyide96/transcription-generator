@@ -2,7 +2,7 @@
 
 ## Access the Services
 Ensure the link entered are in HTTP, not HTTPS
-- **ASR API**: Accessible at [`http://35.198.242.84:8001`](http://35.198.242.84:8001)
+- **ASR API**: Accessible at [`http://35.198.242.84:8001`](http://35.198.242.84:8001/docs)
   - Health check: [`http://35.198.242.84:8001/ping`](http://35.198.242.84:8001/ping)
   - Process audio: [`http://35.198.242.84:8001/asr`](http://35.198.242.84:8001/asr)
 - **Search UI**: Accessible at [`http://35.198.242.84:3000`](http://35.198.242.84:3000)
