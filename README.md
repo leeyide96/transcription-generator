@@ -1,10 +1,11 @@
 # Project: ASR API and Elasticsearch Integration
 
 ## Access the Services
-- **ASR API**: Accessible at `http://localhost:8001`
-  - Health check: `http://localhost:8001/ping`
-- **Search UI**: Accessible at `http://localhost:3000`
-- **Elasticsearch**: Accessible at `http://localhost:9200`
+- **ASR API**: Accessible at `http://35.198.242.84:8001`
+  - Health check: `http://35.198.242.84:8001/ping`
+  - Process audio: `http://35.198.242.84:8001/asr`
+- **Search UI**: Accessible at `http://35.198.242.84:3000`
+- **Elasticsearch**: Accessible at `http://35.198.242.84:9200`
 
 
 ## Features
