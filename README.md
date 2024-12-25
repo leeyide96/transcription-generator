@@ -26,6 +26,10 @@ Ensure the link entered are in HTTP, not HTTPS
 - **`cv-index.py`**: Indexes transcription data from a CSV file into Elasticsearch.
 - **`docker-compose.yaml`**: Defines the services and dependencies for containerized deployment.
 
+## Note
+
+There is CI/CD pipeline that leverages on Github Action. There is another private repo that have the necessary credentials to perform the action and it will deploy to GCP
+
 ## Files and Components
 
 ### asr
